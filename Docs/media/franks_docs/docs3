@@ -1,0 +1,55 @@
+Network:
+fci_ip := 172.16.0.2 
+pc_ip := 172.16.0.1
+255.255.255.0
+
+robot auto IP 192.168.0.1
+Netmask 255.255.255.0
+
+common commands:
+source ~/.bashrc
+gedit ~/.bashrc
+
+runs everything (sim+hardware):
+roslaunch panda_moveit_config panda_control_moveit_rviz.launch robot_ip:=172.16.0.2
+
+sim only:
+roslaunch panda_moveit_config moveit_rviz.launch
+
+controller only:
+roslaunch franka_control franka_control.launch robot_ip:=172.16.0.2 load_gripper:=true
+
+realsense:
+roslaunch realsense2_camera rs_camera.launch
+roslaunch realsense2_camera rs_camera.launch align_depth:=true
+rosrun rqt_reconfigure rqt_reconfigure
+
+
+roslaunch realsense2_camera rs_camera.launch
+
+calibration
+
+rosrun tf static_transform_publisher 0.06787940667 0.03414211321 0.05853938948 -0.00885693544  0.003645564162  -0.7188196237  0.6951306446  panda_hand camera_link_temp 100
+
+rosrun tf static_transform_publisher 0 0 0 0.5 -0.5 0.5 0.5  camera_link_temp camera_link 100
+
+
+
+color_optical to camera link
+Translation: [0.015, 0.001, 0.000]
+- Rotation: in Quaternion [0.504, -0.497, 0.502, 0.497]
+
+newCalibData 30/3/2022 (seems to be faulty on Z axis)
+
+0.07074880984 0.03277107378 -0.04030958015 -0.00939866829  0.001493226093  -0.7166135937  0.6974054722
+
+AR Track
+
+roslaunch ar_track_alvar ar_track.launch 
+
+
+Runs everything everything:  (sim+hardware) + Realsense + Tf Transform
+roslaunch tkh_panda franka_camera_calibrated.launch robot_ip:=172.16.0.2
+
+Runs everything everything+ARTags:  (sim+hardware) + Realsense + Tf Transform + AR
+roslaunch tkh_panda franka_camera_calibrated_ar.launch robot_ip:=172.16.0.2
