@@ -1,7 +1,0 @@
-curl -SLO https://www.kernel.org/pub/linux/kernel/v4.x/linux-4.19.82-rt30.tar.xz
-curl -SLO https://www.kernel.org/pub/linux/kernel/v4.x/linux-4.19.82.tar.sign
-curl -SLO https://www.kernel.org/pub/linux/kernel/projects/rt/4.19/older/patch-4.19.82-rt30..patch.xz
-curl -SLO https://www.kernel.org/pub/linux/kernel/projects/rt/4.19/older/patch-4.19.82-rt30..patch.sign
-xz -d linux-4.19.82.tar.xz
-xz -d patch-4.19.82-rt30.patch.xz
-
