@@ -21,6 +21,7 @@
 ## Main Packages
 
 - librealsense
+- realsense_ros
 
 ## Directories
 
@@ -35,9 +36,7 @@
 
 # Environment Setup: How-to
 
-## panda machine
-
-### OS
+## OS
 
 1. Flash Ubuntu 20.04 image:
 2. Customize your os via gui
@@ -48,8 +47,11 @@
     - pip: `sudo apt install python3-pip` && `python3 -m pip install pip --upgrade`
     - github ssh key gen
 
-### ROS workspace
+## ROS workspace - camera_ws
 
 1. `mkdir ~/project_ws && cd ~/project_ws`
 2. `mkdir src && git clone <repo ssh>`
+3. clone 
 3. `cd ~/project_ws && catkin_make`
+
+## ROS workspace - project_ws

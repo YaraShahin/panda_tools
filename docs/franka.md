@@ -2,7 +2,8 @@
 
 # Hardware Architecture
 
-
+limits and features and stuff
+https://frankaemika.github.io/docs/control_parameters.html#limits-for-panda
 
 # Software Architecture
 - The Franka Control Interface (FCI) allows a fast and direct low-level bidirectional connection to the Arm and Hand. It provides the current status of the robot and enables its direct control with an external workstation PC connected via Ethernet.
@@ -18,10 +19,10 @@
 
 
 ## `libfranka` : Low-level Control C++ Library
----
+
 ### Features
 
-- Interfaces:
+- Interfaces (realtime & non-realtime commands):
     - Gravity & friction compensated joint level torque commands.
     - Joint position or velocity commands.
     - Cartesian pose or velocity commands.
@@ -35,21 +36,31 @@
     - Forward kinematics of all robot joints.
     - Jacobian matrix of all robot joints.
     - Dynamics: inertia matrix, Coriolis and centrifugal vector and gravity vector.
+
 - Examples:
     - To execute the examples, or possibly other programs, navigate to `<home>/libfranka/build/examples/`. Then, you can use run: `./<example-file> <fci-ip>`
     - For list of examples: https://frankaemika.github.io/libfranka/examples.html
     - To verify robot connection and get current joint state: `./echo_robot_state 172.16.0.2`
 
-### 
 
 ## `franka_ros` : ROS & moveit Integration
----
+
 ### Features
 
 - Integrates libfranka into ROS Control. 
 - Includes URDF models and detailed 3D meshes of our robots and end effectors, which allows visualization (e.g. RViz) and kinematic simulations. 
 - MoveIt! integration makes it easy to move the robot and control the gripper, and the provided examples show you how to control your robot using ROS.
 
+![PKG_STRUCTURE](./media/ros-architecture.png)
+
+### 
+
 # Resources
 
-- 
+- https://frankaemika.github.io/docs/index.html
+- https://frankaemika.github.io/docs/control_parameters.html#limits-for-panda
+- https://github.com/frankaemika/libfranka
+- https://frankaemika.github.io/libfranka/
+- https://wiki.ros.org/franka_ros
+- https://github.com/frankaemika/franka_ros
+- https://moveit.ros.org/documentation/concepts/

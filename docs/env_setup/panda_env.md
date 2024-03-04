@@ -45,9 +45,13 @@
 
 # Environment Setup: How-to
 
-## panda machine
+## Robot
 
-### OS
+1. Connect the robot ethernet to the laptop
+2. Setup the newtork config: https://frankaemika.github.io/docs/getting_started.html#setting-up-the-network
+3. test the connection via DESK
+
+## OS
 
 1. Flash Ubuntu 20.04 image:
 2. Customize your os via gui
@@ -69,15 +73,28 @@
 
 1. `mkdir ~/panda_ws && cd ~/panda_ws`
 2. `mkdir src && git clone <repo ssh>`
-3. Install franka_ros version 0.8.0: 
+3. Install franka_ros version 0.8.0: https://frankaemika.github.io/docs/installation_linux.html#building-the-ros-packages
 4. `cd ~/panda_ws && catkin_make`
 
 ## ROS Communication
 
 To setup ROS Noetic Ccommunication between the two laptops over a network :
-1. 
-2. 
 
+1. Connect between the two machines using a direct network (for example, connect both to phone wifi)
+2. Decide which machine will be master. In my case, panda machine is the master
+3. For each machine
+    1. get ip address: `hostname -I`
+    2. In bashrc, add the following lines:
+        - `ROS_HOSTNAME=<current-machine-ip>`
+        - `ROS_MASTER_URI=http://<panda-machine-ip>:11311`
+    3. Open new terminal
+4. Type `roscore` in master machine
+5. Type `rostopic list` in both machines, they should be the same.
+
+Resources: 
+
+- https://wiki.ros.org/ROS/Tutorials/MultipleMachines
+- https://wiki.ros.org/ROS/NetworkSetup
 
 
 # Notes

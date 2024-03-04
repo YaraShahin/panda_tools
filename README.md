@@ -4,7 +4,7 @@ Hardware interface package to wrap the standard commands for each robot actuatio
 
 ## Environment_setup
 
-For more details about environment setup instructions, check docs/dev_env_readme.md and docs/panda_env_readme.md
+For more details about environment setup instructions, check `docs/env_setup`
 
 ### Hardware environment
 
