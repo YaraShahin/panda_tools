@@ -22,6 +22,7 @@
 
 - librealsense
 - realsense_ros
+- cuda
 
 ## Directories
 
