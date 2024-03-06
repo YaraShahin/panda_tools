@@ -44,17 +44,17 @@ class Robot(object):
         self.group.set_planning_time(5)
         self.group.set_planner_id("FMTkConfigDefault")
         rospy.sleep(2)
-        print("Ready to go")
+        
 
     def rotate_joint(self, joint_id, angle):
         joint_goal = self.group.get_current_joint_values()
         joint_goal[joint_id] = angle
-        print("rotating joint ....")
+        
         self.group.go(joint_goal, wait=True)
         self.group.stop()
 
     def go_home(self):
-        print("Going To Home Location")
+        
         p = PoseStamped()
         p.header.frame_id = '/panda_link0'
         p.pose.position.x = 0.45
@@ -76,7 +76,7 @@ class Robot(object):
         self.group.clear_pose_targets()
 
     def go_box(self):
-        print("Going To Box Location")
+        
         p = PoseStamped()
         p.header.frame_id = '/panda_link0'
         p.pose.position.x = 0.484
@@ -105,7 +105,7 @@ class GripperClient():
         client.wait_for_server()
         client.send_goal(True)
         homing_done = client.wait_for_result()
-        print("#### homing gripper ...")
+        
         return homing_done
 
     def move_action(self, w, s):
@@ -115,21 +115,21 @@ class GripperClient():
         goal.width = w
         goal.speed = s
         client.send_goal(goal)
-        print("#### moving gripper to set width=", goal.width, "set speed=", goal.speed)
+        
         move_done = client.wait_for_result()
 
         return move_done
 
     def close(self, diameter):
-        print("OPEN DIAMETER", diameter)
+        
         offset_maths = self.close_percentage * (diameter - self.finger_offset)
-        print("OPEN DIAMETER2", offset_maths)
+        
         self.move_action(offset_maths, 0.02)  # width, speed
 
     def open(self, diameter):
-        print("CLOSE DIAMETER", diameter)
+        
         offset_maths = (diameter - self.finger_offset + self.grasp_clearence)
-        print("CLOSE DIAMETER2", offset_maths)
+        
         self.move_action(offset_maths, 0.02)  # width, speed
 
 
@@ -150,7 +150,7 @@ if __name__ == '__main__':
         moveit_commander.roscpp_initialize(sys.argv)
         main()
     except Exception as e:
-        print(e)
+        pass
     finally:
         moveit_commander.roscpp_shutdown()
         moveit_commander.os._exit(0)

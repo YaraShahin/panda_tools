@@ -32,3 +32,5 @@ For more details about environment setup instructions, check `docs/env_setup`
 ### launch
 
 ### scripts
+
+roslaunch panda_moveit_config franka_control.launch robot_ip:=172.16.0.2
