@@ -7,13 +7,31 @@ project(panda_tools)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS
-  rospy
-  std_msgs
+find_package(catkin REQUIRED
+  COMPONENTS
+    interactive_markers
+    moveit_core
+    moveit_ros_planning
+    moveit_ros_planning_interface
+    moveit_ros_perception
+    rviz_visual_tools
+    moveit_visual_tools
+    pluginlib
+    geometric_shapes
+    pcl_ros
+    pcl_conversions
+    rosbag
+    tf2_ros
+    tf2_eigen
+    tf2_geometry_msgs
+    rospy
+    std_msgs
 )
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
+find_package(Eigen3 REQUIRED)
+find_package(Boost REQUIRED system filesystem date_time thread)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -158,10 +176,14 @@ include_directories(
 
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
-# catkin_install_python(PROGRAMS
-#   scripts/my_python_script
-#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
+catkin_install_python(PROGRAMS
+  scripts/pick_and_place_demo.py
+  scripts/arm_demo.py
+  scripts/gripper_demo.py
+  src/ArmCommander.py
+  src/GripperCommander.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
 
 ## Mark executables for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_executables.html
@@ -185,11 +207,9 @@ include_directories(
 # )
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
-# install(FILES
-#   # myfile1
-#   # myfile2
-#   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-# )
+install(DIRECTORY launch/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
 
 #############
 ## Testing ##
