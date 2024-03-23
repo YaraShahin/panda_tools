@@ -31,6 +31,10 @@
     - Description: integrates libfranka with ROS & moveit
     - Path: Separate install in each ros ws
     - Version: 0.8.0
+- panda_moveit_configs
+    - Description: moveit tools (launch files) for franka panda
+    - Path: install in each ros ws
+    - Version: latest
 
 ## Directories
 
@@ -72,30 +76,11 @@
 ### ROS workspace
 
 1. `mkdir ~/panda_ws && cd ~/panda_ws`
-2. `mkdir src && git clone <repo ssh>`
+2. `mkdir src && git clone git@github.com:YaraShahin/panda_tools.git`
 3. Install franka_ros version 0.8.0: https://frankaemika.github.io/docs/installation_linux.html#building-the-ros-packages
+4. Install panda_moveit_configs
 4. `cd ~/panda_ws && catkin_make`
-
-## ROS Communication
-
-To setup ROS Noetic Ccommunication between the two laptops over a network :
-
-1. Connect between the two machines using a direct network (for example, connect both to phone wifi)
-2. Decide which machine will be master. In my case, panda machine is the master
-3. For each machine
-    1. get ip address: `hostname -I`
-    2. In bashrc, add the following lines:
-        - `ROS_HOSTNAME=<current-machine-ip>`
-        - `ROS_MASTER_URI=http://<panda-machine-ip>:11311`
-    3. Open new terminal
-4. Type `roscore` in master machine
-5. Type `rostopic list` in both machines, they should be the same.
-
-Resources: 
-
-- https://wiki.ros.org/ROS/Tutorials/MultipleMachines
-- https://wiki.ros.org/ROS/NetworkSetup
-
+6. Optional: add `source ~/panda_ws/devel/setup.bash` to `~/.bashrc`
 
 # Notes
 
@@ -122,3 +107,4 @@ Resources:
 - misc.
     - `sudo apt install --reinstall linux-headers-$(uname -r)`
     - list hardware: `lspci`
+    - get previous commands: `history`

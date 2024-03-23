@@ -53,3 +53,11 @@ roslaunch tkh_panda franka_camera_calibrated.launch robot_ip:=172.16.0.2
 
 Runs everything everything+ARTags:  (sim+hardware) + Realsense + Tf Transform + AR
 roslaunch tkh_panda franka_camera_calibrated_ar.launch robot_ip:=172.16.0.2
+
+
+calibData 11-4
+0.07085917397 0.03292617131 -0.05131155109  -0.00814520629  0.0006262179598  -0.7175730906  0.6964352971
+
+
+calibData 11-4
+0.07085917397 0.03292617131 -0.05131155109  -0.00814520629  0.0006262179598  -0.7175730906  0.6964352971

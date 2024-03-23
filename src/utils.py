@@ -1,3 +1,6 @@
+import copy, math
+import numpy as np
+
 #Convert quaternion to euler
 def euler_from_quaternion(x, y, z, w):
     """
@@ -40,3 +43,17 @@ def quaternion_from_euler(roll, pitch, yaw):
     qw = np.cos(roll/2) * np.cos(pitch/2) * np.cos(yaw/2) + np.sin(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
     
     return [qx, qy, qz, qw]
+
+def _approach(self, pose):
+    """
+    Move to a pose with a hover-distance above the requested pose and
+    then move to the pose incrementally while monitoring the z force
+    """
+    print('approaching...')
+    approach = copy.deepcopy(pose)
+    approach.position.z = approach.position.z + self._hover_distance + self.robot.eps.z + self.robot.hand_EE_offset
+    self.robot.move_to(approach)
+
+    while approach.position.z >= pose.position.z:
+        approach.position.z = approach.position.z - self.step_size
+        self.robot.move_to(approach)

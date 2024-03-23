@@ -3,10 +3,6 @@
 import rospy
 from panda_tools.msg import GripperAction
 from geometry_msgs.msg import Pose
-import sys
-
-sys.path.append('../')  # Add the project root to the sys.path
-from src.ArmCommander import arm_commander
 
 def pnp_fixed():
     # Initialize the ROS node
@@ -24,15 +20,15 @@ def pnp_fixed():
     pick_pose.pose.orientation.z = 0
     pick_pose.pose.orientation.w = 0
     
-    """place_pose = Pose()
-    place_pose.position.x = 1.0
-    place_pose.position.y = 2.0
-    place_pose.position.z = 0.0
-    place_pose.orientation.x = 0.0
-    place_pose.orientation.y = 0.0
-    place_pose.orientation.z = 0.0
-    place_pose.orientation.w = 1.0"""
-    arm_commander.go_home()
+    place_pose = Pose()
+    home_pose = rospy.get_param("/POSES/HOME")
+    place_pose.position.x = home_pose[0]
+    place_pose.position.y = home_pose[1]
+    place_pose.position.z = home_pose[2]
+    place_pose.orientation.x = home_pose[3]
+    place_pose.orientation.y = home_pose[4]
+    place_pose.orientation.z = home_pose[5]
+    place_pose.orientation.w = home_pose[6]
     
     # create gripper commander publisher and initialize gripper command msgs for open and close
     gripper_commander_publisher = rospy.Publisher('target_gripper_action', GripperAction, queue_size=10)

@@ -53,7 +53,19 @@ https://frankaemika.github.io/docs/control_parameters.html#limits-for-panda
 
 ![PKG_STRUCTURE](./media/ros-architecture.png)
 
-### 
+### Interfaces
+
+TODO
+
+## `panda_moveit_configs` : moveit examples for franka panda
+
+### Features
+
+TODO
+
+### Interfaces
+
+TODO
 
 # Resources
 
