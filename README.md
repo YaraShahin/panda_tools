@@ -85,4 +85,8 @@ Hardware interface package to wrap the standard commands for panda robot. Includ
     `rosrun panda_tools pnp_demo_fixed.py`
     Expected Behavior: The robot should open, go to a pose (confirms first), closes, go to a second pose (confirms first), then closes.
 
+## TODO
+ - See if it'd be better to just have people import the two src scripts and make the objects themselves
+   Pro: More flexibility (can use go_home or go_joint_state)
+   Con: More complex to set up
  
