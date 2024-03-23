@@ -1,24 +1,25 @@
 #!/usr/bin/env python
 
+##########################################
+#           Libs
+##########################################
 import sys
-import copy
 import rospy
 import moveit_commander
-import moveit_msgs.msg
 import geometry_msgs.msg
-from math import pi
-from std_msgs.msg import String
 from moveit_commander.conversions import pose_to_list
-import time
 import getch
 from geometry_msgs.msg import PoseStamped
 from std_msgs.msg import Header
-import argparse
+import math
 
+##########################################
+#           Utils
+##########################################
 def wait_for_keypress():
-    print("Press any key to continue...")
-    getch.getch()
-    print("Continuing...")
+  print("Press any key to continue...")
+  getch.getch()
+  print("Continuing...")
 
 def all_close(goal, actual, tolerance):
   """
@@ -42,84 +43,76 @@ def all_close(goal, actual, tolerance):
 
   return True
 
-class MoveGroupPythonInteface(object):
-  HOME_POSE = geometry_msgs.msg.Pose()
-  HOME_POSE.position.x, HOME_POSE.position.y, HOME_POSE.position.z= 0.37896, 0.013066, 0.21587
-  HOME_POSE.orientation.x, HOME_POSE.orientation.y, HOME_POSE.orientation.z, HOME_POSE.orientation.w = -0.93856, 0.3445, -0.012249, 0.01666
-  
+##########################################
+#           Core
+##########################################
+class ArmCommander(object):
   def __init__(self):
-    super(MoveGroupPythonInteface, self).__init__()
-    debugging = rospy.get_param('~debugging', True)
+    super(ArmCommander, self).__init__()
+    self.debugging = rospy.get_param('~debugging', True)
 
     ## First initialize `moveit_commander`_ and a `rospy`_ node:
     moveit_commander.roscpp_initialize(sys.argv)
-    rospy.init_node('move_group_python_interface', anonymous=True)
+    rospy.init_node('arm_commander', anonymous=True)
 
     ## Instantiate a `RobotCommander`_ object. Provides information such as the robot's
     ## kinematic model and the robot's current joint states
-    robot = moveit_commander.RobotCommander()
-
-    ## Instantiate a `PlanningSceneInterface`_ object.  This provides a remote interface
-    ## for getting, setting, and updating the robot's internal understanding of the
-    ## surrounding world:
-    scene = moveit_commander.PlanningSceneInterface()
-
-    ## Instantiate a `MoveGroupCommander`_ object.  This object is an interface
-    ## to a planning group (group of joints).  In this tutorial the group is the primary
-    ## arm joints in the Panda robot, so we set the group's name to "panda_arm".
-    ## If you are using a different robot, change this value to the name of your robot
-    ## arm planning group.
-    ## This interface can be used to plan and execute motions:
-    group_name = "panda_arm"
-    move_group = moveit_commander.MoveGroupCommander(group_name)
+    self.robot = moveit_commander.RobotCommander()
+    self.setup_planner()
+    self.log_robot_info()
     
-    rospy.Subscriber("/target_pose", geometry_msgs.msg.Pose, self.robot_commander_callback)
+    self.rviz_display_pose_publisher = rospy.Publisher('/rviz_display_pose', geometry_msgs.msg.PoseStamped, latch=True, queue_size=20)    #Target Pose
+    self.current_ee_pose_publisher = rospy.Publisher('/current_ee_pose', geometry_msgs.msg.Pose, queue_size=20)
     
-    ## Create a `TargetPose`_ ROS publisher which is used to display
-    ## poses in Rviz:
-    rviz_display_pose_publisher = rospy.Publisher('/rviz_display_pose', 
-                                            geometry_msgs.msg.PoseStamped, 
-                                            latch=True, 
-                                            queue_size=20)
+    # To command the arm to go to a target ee pose, just publish a msg to this topic
+    rospy.Subscriber("/target_ee_pose", geometry_msgs.msg.Pose, self.arm_commander_callback)
     
-    current_ee_pose_publisher = rospy.Publisher('/current_ee_pose', 
-                                            geometry_msgs.msg.Pose, 
-                                            queue_size=20)
+    self.go_home()
+    rospy.sleep(2)
+    rospy.loginfo("Arm Commander Ready to recieve pose messages!")
 
-    # We can get the name of the reference frame for this robot:
-    planning_frame = move_group.get_planning_frame()
-    rospy.loginfo("============ Planning frame: %s" % planning_frame)
-
-    # We can also print the name of the end-effector link for this group:
-    eef_link = move_group.get_end_effector_link()
-    rospy.loginfo("============ End effector link: %s" % eef_link)
-
-    # We can get a list of all the groups in the robot:
-    group_names = robot.get_group_names()
-    rospy.loginfo("============ Available Planning Groups:", robot.get_group_names())
+  def log_robot_info(self):
+    rospy.loginfo("============ Planning frame: %s" % self.planning_frame)
+    rospy.loginfo("============ End effector link: %s" % self.eef_link)      
+    rospy.loginfo("============ Available Planning Groups:", self.robot.get_group_names())
 
     # Sometimes for debugging it is useful to print the entire state of the
     # robot:
     rospy.loginfo("============ Printing robot state")
-    rospy.loginfo(robot.get_current_state())
+    rospy.loginfo(self.robot.get_current_state())
     rospy.loginfo("")
-
-    # Misc variables
-    self.robot = robot
-    self.debugging = debugging
-    self.scene = scene
-    self.move_group = move_group
-    self.current_ee_pose_publisher = current_ee_pose_publisher
-    self.rviz_display_pose_publisher = rviz_display_pose_publisher
-    self.planning_frame = planning_frame
-    self.eef_link = eef_link
-    self.group_names = group_names
+  
+  def setup_planner(self):
+    ## Instantiate a `MoveGroupCommander`_ object.  This object is an interface
+    ## to a planning group (group of joints).  In this tutorial the group is the primary
+    ## arm joints in the Panda robot, so we set the group's name to "panda_arm".
+    ## This interface can be used to plan and execute motions:
+    self.group_name = rospy.get_param('/ArmCommander/group_name', "panda_arm")
+    self.move_group = moveit_commander.MoveGroupCommander(self.group_name)
+    self.move_group.set_end_effector_link(rospy.get_param('/ArmCommander/ee_link', "panda_hand"))    # planning wrt to panda_hand or link8
+    self.move_group.set_max_velocity_scaling_factor(rospy.get_param('/ArmCommander/max_vel',0.20))  # scaling down velocity
+    self.move_group.set_max_acceleration_scaling_factor(rospy.get_param('/ArmCommander/max_accel',0.05))  # scaling down velocity
+    self.move_group.allow_replanning(rospy.get_param('/ArmCommander/allow_replanning',True))
+    self.move_group.set_num_planning_attempts(rospy.get_param('/ArmCommander/max_num_attempts',10))
+    self.move_group.set_goal_position_tolerance(rospy.get_param('/ArmCommander/pos_tolerance',0.0005))
+    self.move_group.set_goal_orientation_tolerance(rospy.get_param('/ArmCommander/orientation_tolerance',0.01))
+    self.move_group.set_planning_time(rospy.get_param('/ArmCommander/planning_time',5))
+    self.move_group.set_planner_id(rospy.get_param('/ArmCommander/planner_id',"FMTkConfigDefault"))
+      
+    self.planning_frame = self.move_group.get_planning_frame()  # reference frame for this robot
+    self.eef_link = self.move_group.get_end_effector_link()
+    self.group_names = self.robot.get_group_names()
     
-  def robot_commander_callback(self, msg):
+  def go_home(self):
+    rospy.loginfo("============ Going to Home Position ===========")
+    joint_goal = rospy.get_param('/JOINT_STATES/HOME')
+    self.go_to_joint_state(joint_goal)
+    
+  def arm_commander_callback(self, msg):
     pose = msg.data
-    rospy.loginfo("Received message: %s", msg.data)
+    rospy.loginfo("Received target pose message: %s", msg.data)
 
-    self.go_to_pose_goal(pose)
+    self.go_to_pose_goal(pose, self.debugging)
     
   def get_current_pose(self):
       current_pose = self.move_group.get_current_pose().pose
@@ -136,7 +129,7 @@ class MoveGroupPythonInteface(object):
     pose_msg.pose=pose
     self.rviz_display_pose_publisher.publish(pose_msg)
 
-  def go_to_pose_goal(self, pose):
+  def go_to_pose_goal(self, pose, debugging = True):
     """
     Panda End Effector go to pose
     debugging mode waits for ur approval on the computed trajectory
@@ -148,10 +141,9 @@ class MoveGroupPythonInteface(object):
     # make the plan and display the trajectory in RViz
     plan_success, trajectory, planning_time, error_code = self.move_group.plan(pose)
     
-    if (self.debugging):
-      wait_for_keypress()   #wait for planned trajectory human validation
-    
     if trajectory:    # If planning succeeds, Execute the trajectory
+      if (debugging):
+        wait_for_keypress()   #wait for planned trajectory human validation
       self.move_group.execute(trajectory)
     else:
       rospy.logerr("Failed to plan trajectory!")
@@ -173,26 +165,36 @@ class MoveGroupPythonInteface(object):
       rospy.loginfo("============ Movement Failed ===========")
       return 0
     
-  def go_home(self):
-    rospy.loginfo("============ Going to Home Position ===========")
-    self.go_to_pose_goal(self.HOME_POSE, debugging=False)
-    
+  def go_to_joint_state(self, joint_goal):
+    # The go command can be called with joint values, poses, or without any
+    # parameters if you have already set the pose or joint target for the group
+    self.move_group.go(joint_goal, wait=True)
+
+    # Calling ``stop()`` ensures that there is no residual movement
+    self.move_group.stop()
+
+    # For testing:
+    current_joints = self.move_group.get_current_joint_values()
+    return all_close(joint_goal, current_joints, 0.01)
+
+##########################################
+#           Main
+##########################################
 def main():
   try:
-    RobotCommander = MoveGroupPythonInteface()
-    RobotCommander.go_home()
-    rospy.loginfo("Robot Commander Ready to recieve pose messages!")
+    arm_commander = ArmCommander()
     rate = rospy.Rate(1)
     while not rospy.is_shutdown():
-      pose_msg = RobotCommander.get_current_pose()
-      RobotCommander.current_ee_pose_publisher.publish(pose_msg)
-      rospy.loginfo("Published message: %s" % pose_msg)
+      pose_msg = arm_commander.get_current_pose()
+      arm_commander.current_ee_pose_publisher.publish(pose_msg)
+      rospy.loginfo("Published current pose message: %s" % pose_msg)
       rate.sleep()
     rospy.spin()
     
   except rospy.ROSInterruptException:
     return
   except KeyboardInterrupt:
+    ArmCommander.go_home()
     return
 
 if __name__ == '__main__':

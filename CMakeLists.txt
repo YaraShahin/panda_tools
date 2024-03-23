@@ -26,6 +26,7 @@ find_package(catkin REQUIRED
     tf2_geometry_msgs
     rospy
     std_msgs
+    message_generation
 )
 
 ## System dependencies are found with CMake's conventions
@@ -64,11 +65,10 @@ find_package(Boost REQUIRED system filesystem date_time thread)
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+add_message_files(
+  FILES
+  GripperAction.msg
+)
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -85,10 +85,10 @@ find_package(Boost REQUIRED system filesystem date_time thread)
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs
-# )
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -121,8 +121,8 @@ find_package(Boost REQUIRED system filesystem date_time thread)
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES panda_tools
-#  CATKIN_DEPENDS rospy std_msgs
+  LIBRARIES panda_tools
+  CATKIN_DEPENDS rospy std_msgs message_runtime
 #  DEPENDS system_lib
 )
 
@@ -177,7 +177,7 @@ include_directories(
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
 catkin_install_python(PROGRAMS
-  scripts/pick_and_place_demo.py
+  scripts/pnp_demo_fixed.py
   scripts/arm_demo.py
   scripts/gripper_demo.py
   src/ArmCommander.py

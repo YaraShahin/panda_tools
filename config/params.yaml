@@ -1,0 +1,29 @@
+ArmCommander:
+  real_robot: True
+  group_name: "panda_arm"
+  ee_link: "panda_hand"
+  max_vel: 0.20
+  max_accel: 0.05
+  allow_replanning: True
+  max_num_attempts: 10
+  pos_tolerance: 0.0005
+  orientation_tolerance: 0.01
+  planning_time: 5
+  planner_id: "FMTkConfigDefault"
+  hand_EE_offset: 0.11
+  base_link: "panda_link0"      #Z distance from hand to EE frame
+
+GripperCommander:
+  open_width: 0.08
+  close_width: 0.047
+  speed: 0.02
+  finger_offset: 0.01
+  grasp_clearence: 0.03
+  close_percentage: 0.65
+
+EE_POSES:
+  HOME: (0.37896, 0.013066, 0.21587, -0.93856, 0.3445, -0.012249, 0.01666)
+
+JOINT_STATES:
+  HOME: [0.05622759528301264,-0.5044851906676041,0.01182232086595736,-1.9919824140541247,-0.01685925059682793,1.5351335138195017,0.8131031781409933]
+  DROP_OFF: [0.5504058568859961,0.721285769390586,0.738233269560398,-2.0060661936842368,-0.7433834850399285,2.3909292103977107,0.9083082512544473]
