@@ -1,0 +1,5 @@
+self.JOINT_BASE = 0
+        self.JOINT_WRIST = 6
+        self.ee_to_finger = 0.13
+        self.replan = False
+add gripper init in arm commander
