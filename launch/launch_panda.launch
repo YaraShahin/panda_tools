@@ -3,7 +3,10 @@
   <!-- args for franks initialization-->
   <arg name="robot_ip" default="172.16.0.2"/>
   <arg name="load_gripper" default="true" />
-  
+
+  <!-- Fake Transform to overlay world on panda_link0 -->
+  <node pkg="tf2_ros" type="static_transform_publisher" name="virtual_joint_broadcaster_1" args="0 0 0 0 0 0 world panda_link0" />
+
   <!-- Initialize real robot and gripper, moveit, and rviz-->
   <include file="$(find panda_moveit_config)/launch/franka_control.launch">
     <arg name="robot_ip" value="$(arg robot_ip)" />

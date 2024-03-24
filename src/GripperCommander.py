@@ -24,7 +24,7 @@ class GripperCommander():
         rospy.loginfo("Gripper Commander Ready to recieve open/close messages!")
         
     def gripper_commander_callback(self, msg):
-        rospy.loginfo("Received gripper command message: %s", msg.data)
+        rospy.loginfo("Received gripper command message: %s" % msg)
         command, percentage = msg.command, msg.percentage
         if (command):
             self.open(percentage)

@@ -10,7 +10,7 @@ import geometry_msgs.msg
 from moveit_commander.conversions import pose_to_list
 import getch
 from geometry_msgs.msg import PoseStamped
-from std_msgs.msg import Header
+from std_msgs.msg import Header, Bool
 import math
 
 ##########################################
@@ -63,25 +63,30 @@ class ArmCommander(object):
     
     self.rviz_display_pose_publisher = rospy.Publisher('/rviz_display_pose', geometry_msgs.msg.PoseStamped, latch=True, queue_size=20)    #Target Pose
     self.current_ee_pose_publisher = rospy.Publisher('/current_ee_pose', geometry_msgs.msg.Pose, queue_size=20)
-    
+    self.stationary_status_publisher = rospy.Publisher('/stationary_status', Bool, queue_size=20)
+
     # To command the arm to go to a target ee pose, just publish a msg to this topic
     rospy.Subscriber("/target_ee_pose", geometry_msgs.msg.Pose, self.arm_commander_callback)
     
-    self.go_home()
+    self.old_pose = self.get_current_pose()
+    
+    #self.go_home()
     rospy.sleep(2)
     rospy.loginfo("Arm Commander Ready to recieve pose messages!")
 
   def log_robot_info(self):
     rospy.loginfo("============ Planning frame: %s" % self.planning_frame)
     rospy.loginfo("============ End effector link: %s" % self.eef_link)      
-    rospy.loginfo("============ Available Planning Groups:", self.robot.get_group_names())
+    rospy.loginfo("============ Available Planning Groups: %s" % self.robot.get_group_names())
 
     # Sometimes for debugging it is useful to print the entire state of the
     # robot:
     rospy.loginfo("============ Printing robot state")
     rospy.loginfo(self.robot.get_current_state())
     rospy.loginfo("")
-  
+    
+    rospy.loginfo("Published current pose message: %s \n" % self.get_current_pose())  
+    
   def setup_planner(self):
     ## Instantiate a `MoveGroupCommander`_ object.  This object is an interface
     ## to a planning group (group of joints).  In this tutorial the group is the primary
@@ -108,9 +113,8 @@ class ArmCommander(object):
     joint_goal = rospy.get_param('/JOINT_STATES/HOME')
     self.go_to_joint_state(joint_goal)
     
-  def arm_commander_callback(self, msg):
-    pose = msg.data
-    rospy.loginfo("Received target pose message: %s", msg.data)
+  def arm_commander_callback(self, pose):
+    rospy.loginfo("Received target pose message: %s", pose)
 
     self.go_to_pose_goal(pose, self.debugging)
     
@@ -136,7 +140,7 @@ class ArmCommander(object):
     """
     self.display_pose(pose)
     self.move_group.set_pose_target(pose)
-    rospy.loginfo("============ Going to specified Target Pose:", pose)
+    rospy.loginfo("============ Going to specified Target Pose: %s" % pose)
     
     # make the plan and display the trajectory in RViz
     plan_success, trajectory, planning_time, error_code = self.move_group.plan(pose)
@@ -176,6 +180,17 @@ class ArmCommander(object):
     # For testing:
     current_joints = self.move_group.get_current_joint_values()
     return all_close(joint_goal, current_joints, 0.01)
+  
+  def is_stationary(self):
+    current_pose = self.get_current_pose()
+    is_stationary_msg = Bool()
+    if (all_close(current_pose, self.old_pose, 0.01)):
+      is_stationary_msg.data = True
+    else:
+      is_stationary_msg.data = False
+    self.old_pose = current_pose
+    return is_stationary_msg
+    
 
 ##########################################
 #           Main
@@ -187,7 +202,10 @@ def main():
     while not rospy.is_shutdown():
       pose_msg = arm_commander.get_current_pose()
       arm_commander.current_ee_pose_publisher.publish(pose_msg)
-      rospy.loginfo("Published current pose message: %s" % pose_msg)
+      
+      is_stationary_msg = arm_commander.is_stationary()
+      arm_commander.stationary_status_publisher.publish(is_stationary_msg)
+      #rospy.loginfo("Published current pose message: %s" % pose_msg)
       rate.sleep()
     rospy.spin()
     

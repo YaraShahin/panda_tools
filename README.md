@@ -21,9 +21,9 @@ Hardware interface package to wrap the standard commands for panda robot. Includ
  - dev machine:
     - Ubuntu 20
     - ros Noetic
-    - CUDA 11
+    - CUDA 12
 
-### Demo
+ ### Demo
 
  STEP 1: `roslaunch panda_tools launch_panda.launch`
  STEP 1: `rosrun panda_tools pnp_demo_fixed.py`

@@ -4,9 +4,11 @@ import rospy
 from panda_tools.msg import GripperAction
 
 def gripper_commander_publisher():
+    gripper_commander_publisher = rospy.Publisher('target_gripper_action', GripperAction, queue_size=10)
+
     # Initialize the ROS node
     rospy.init_node('gripper_commander_publisher', anonymous=True)
-    gripper_commander_publisher = rospy.Publisher('target_gripper_action', GripperAction, queue_size=10)
+    rate = rospy.Rate(10)
     grip_msg = GripperAction()
     
     # open
