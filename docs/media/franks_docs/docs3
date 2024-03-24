@@ -1,5 +1,0 @@
-
-realsense:
-roslaunch realsense2_camera rs_camera.launch
-roslaunch realsense2_camera rs_camera.launch align_depth:=true
-rosrun rqt_reconfigure rqt_reconfigure

@@ -4,26 +4,9 @@ Hardware interface package to wrap the standard commands for panda robot. Includ
 
 ## Environment_setup
 
- For more details about environment setup instructions, check `docs/env_setup`
+ For environment setup details and instructions, check `docs/env_setup`
 
- ### Hardware environment
-
- - Franka Emika Cobot connected via Ethernet to panda machine (G5 dell laptop)
- - RealSense D435 Camera connected via USB to dev machine (g3 dell laptop)
- - ROS communication between the two laptops
-
- ### Software environment
-
- - panda machine:
-    - Ubuntu 20 + 5.9 realtime kernel
-    - ros Noetic
-
- - dev machine:
-    - Ubuntu 20
-    - ros Noetic
-    - CUDA 12
-
- ### Demo
+## Demo
 
  STEP 1: `roslaunch panda_tools launch_panda.launch`
  STEP 1: `rosrun panda_tools pnp_demo_fixed.py`
@@ -79,14 +62,18 @@ Hardware interface package to wrap the standard commands for panda robot. Includ
 
  3. **GripperCommander**
     `rosrun panda_tools gripper_demo.py`
-    Expected Behavior: the gripper should open, then close (with prints).
+    Expected Behavior: the gripper should open, then cSee if it'd be better to just have people import the two src scripts and make the objects themselves
+   Pro: More flexibility (can use go_home or go_joint_state)
+   Con: More complex to set uplose (with prints).
 
  4. **pick and place demo**
     `rosrun panda_tools pnp_demo_fixed.py`
     Expected Behavior: The robot should open, go to a pose (confirms first), closes, go to a second pose (confirms first), then closes.
 
 ## TODO
- - See if it'd be better to just have people import the two src scripts and make the objects themselves
-   Pro: More flexibility (can use go_home or go_joint_state)
-   Con: More complex to set up
+ - [ ] Some kind of feedback to report when the robot is currently ready to recieve pose commands. 
+    This could be handled in the callback function itself to form a queue and store all the commands and execute them in order.
+ - [ ] Some kind of feedback to report when the robot is currently ready to recieve gripper commands
+ - [ ] Include realsense model in franka robot description
+
  
