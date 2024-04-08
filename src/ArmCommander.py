@@ -70,7 +70,7 @@ class ArmCommander(object):
     
     self.old_pose = self.get_current_pose()
     
-    #self.go_home()
+    self.go_home()
     rospy.sleep(2)
     rospy.loginfo("Arm Commander Ready to recieve pose messages!")
 

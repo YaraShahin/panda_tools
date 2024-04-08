@@ -174,3 +174,12 @@ def rotate_pose_msg_about_origin(pose, r, p, y):
     initial = matrix_from_pose_msg(pose)
     transform = quaternion_matrix(quaternion_from_euler(r, p, y))
     return pose_msg_from_matrix(concatenate_matrices(transform, initial))
+
+def transform_to_pose(transform):
+    pose_msg = Pose()
+    pose_msg.position.x = transform.translation.x
+    pose_msg.position.y = transform.translation.y
+    pose_msg.position.z = transform.translation.z
+    pose_msg.orientation = transform.rotation
+    return pose_msg
+

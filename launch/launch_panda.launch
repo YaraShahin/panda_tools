@@ -17,5 +17,11 @@
   <rosparam command="load" file="$(find panda_tools)/config/params.yaml" />
   <node name="ArmCommander" pkg="panda_tools" type="ArmCommander.py" respawn="false" output="screen"></node>
   <node name="GripperCommander" pkg="panda_tools" type="GripperCommander.py" respawn="false" output="screen"></node>
+
+  <!-- Calibration Data (New Calib Data) -->
+  <node pkg="tf2_ros" type="static_transform_publisher" name="hand_to_cameraTemp" args="0.07085917397 0.03292617131 0.05131155109  -0.00814520629  0.0006262179598  -0.7175730906  0.6964352971  panda_hand camera_link_temp" />
+
+  <!-- Camera Temp to Camera Link-->
+  <node pkg="tf2_ros" type="static_transform_publisher" name="cameraTemp_to_camera" args="0.015 0.001 0 0.5 -0.5 0.5 0.5  camera_link_temp camera_link" />
 </launch>
 
