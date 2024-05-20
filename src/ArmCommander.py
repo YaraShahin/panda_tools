@@ -10,7 +10,7 @@ import geometry_msgs.msg
 from moveit_commander.conversions import pose_to_list
 import getch
 from geometry_msgs.msg import PoseStamped
-from std_msgs.msg import Header, Bool
+from std_msgs.msg import Header, Bool, Int32
 import math
 
 ##########################################
@@ -67,6 +67,7 @@ class ArmCommander(object):
 
     # To command the arm to go to a target ee pose, just publish a msg to this topic
     rospy.Subscriber("/target_ee_pose", geometry_msgs.msg.Pose, self.arm_commander_callback)
+    rospy.Subscriber("/joint_command", Int32, self.joint_commander_callback)
     
     self.old_pose = self.get_current_pose()
     
@@ -113,10 +114,25 @@ class ArmCommander(object):
     joint_goal = rospy.get_param('/JOINT_STATES/HOME')
     self.go_to_joint_state(joint_goal)
     
+  def go_goal(self):
+    rospy.loginfo("============ Going to Goal ===========")
+    joint_goal = rospy.get_param('/JOINT_STATES/DROP_OFF2')
+    self.go_to_joint_state(joint_goal)
+    
   def arm_commander_callback(self, pose):
     rospy.loginfo("Received target pose message: %s", pose)
 
     self.go_to_pose_goal(pose, self.debugging)
+    
+  def joint_commander_callback(self, msg):
+    code = msg.data
+    
+    if (code==1):
+      self.go_home()
+    elif (code==2):
+      self.go_goal()
+    else:
+      rospy.logerr("I DONT RECOGNIZE THIS CODE")
     
   def get_current_pose(self):
       current_pose = self.move_group.get_current_pose().pose
@@ -133,7 +149,7 @@ class ArmCommander(object):
     pose_msg.pose=pose
     self.rviz_display_pose_publisher.publish(pose_msg)
 
-  def go_to_pose_goal(self, pose, debugging = True):
+  def go_to_pose_goal(self, pose, debugging = False):
     """
     Panda End Effector go to pose
     debugging mode waits for ur approval on the computed trajectory
@@ -145,9 +161,20 @@ class ArmCommander(object):
     # make the plan and display the trajectory in RViz
     plan_success, trajectory, planning_time, error_code = self.move_group.plan(pose)
     
+    """# Extract joint names from the MoveIt plan
+    joint_names = trajectory.joint_trajectory.joint_names
+
+    # Extract trajectory waypoints from the MoveIt plan
+    waypoints = trajectory.joint_trajectory.points
+    
+    try:
+      rospy.logerr(waypoints[-1])
+    except Exception as e:
+      rospy.logerr(f"Exception tant {e}")"""
+    
     if trajectory:    # If planning succeeds, Execute the trajectory
-      if (debugging):
-        wait_for_keypress()   #wait for planned trajectory human validation
+      #if (debugging):
+      #  wait_for_keypress()   #wait for planned trajectory human validation
       self.move_group.execute(trajectory)
     else:
       rospy.logerr("Failed to plan trajectory!")

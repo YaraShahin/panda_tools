@@ -122,7 +122,7 @@ class GripperCommander(object):
         self.command_queue = []
         
     def task_handler(self):
-        rospy.logerr(self.command_queue)
+        rospy.logdebug(self.command_queue)
         if (self.command_queue):
             if (not self.free):
                 rospy.logwarn("Gripper CURRENTLY BUSY")
@@ -466,7 +466,6 @@ def main():
     
     while not rospy.is_shutdown():
         gripper_commander.task_handler()
-        rospy.logwarn("Jii")
         rate.sleep()
     rospy.spin()
     

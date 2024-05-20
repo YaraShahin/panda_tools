@@ -3,3 +3,6 @@ self.JOINT_BASE = 0
         self.ee_to_finger = 0.13
         self.replan = False
 add gripper init in arm commander
+
+
+192.168.82.79 
