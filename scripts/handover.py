@@ -1,5 +1,14 @@
 #!/usr/bin/env python
 
+#1. Wire camera to dev machine and robot to panda machine
+#2. connect both machines on my wifi and verify the ips and the ros connection
+#3. Panda Machine: roscore
+#4. Panda Machine: roslaunch panda_tools launch_robot.launch to launch robot with movit and rviz + camera extrensics state publisher
+#panda machine rosrun panda_tools handover.py
+#5. Dev machine: run the shell script to init 
+#6. wait till everything is inited
+#7. press any key to capture, segment, generate grasp pose, manipulate, and publish it.
+
 import rospy
 import tf
 from geometry_msgs.msg import Pose, PoseStamped
