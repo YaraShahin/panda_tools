@@ -18,6 +18,17 @@
 #- [ ]  timeout franka enter to validate pose
 #- [ ]  add table to ws
 #- [ ]  octomap
+#- Add tabletop to moveit scene
+#- Add Camera to robot xacro and moveit planner
+##- Robot track wara el object
+#- Robot2Human
+#- Higher-order planning learning el object functionality using google lens
+#- Higher order planning as EgoHOS outputs object detection, mesh profile, and the activity from egocentric pov
+#- Collision Avoidance
+#- TKH_Panda Todos + marker demos
+#- middleware_utils: calibration
+#- Force/Torque: Grasp force modulation
+#- Behavior Trees
 
 import rospy
 import tf
