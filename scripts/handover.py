@@ -9,6 +9,16 @@
 #6. wait till everything is inited
 #7. press any key to capture, segment, generate grasp pose, manipulate, and publish it.
 
+#- [ ]  Increase effeciency
+#    - [ ]  Segmentation model substitution or remove the need for 2 hands then cb then obj
+#    - [ ]  see if u can decrease the number of generated grasps to decrease time
+#- [ ]  Increase accuracy
+#    - [ ]  Erode the segmentation mask to see if grasp pose generation success rate increases
+#- [ ]  robot 2 human
+#- [ ]  timeout franka enter to validate pose
+#- [ ]  add table to ws
+#- [ ]  octomap
+
 import rospy
 import tf
 from geometry_msgs.msg import Pose, PoseStamped
