@@ -19,12 +19,13 @@ class Handover:
         self.tf_buffer = tf2_ros.Buffer()
         self.tf_listener = tf2_ros.TransformListener(self.tf_buffer)
         self.pose_publisher = rospy.Publisher('/target_ee_pose', Pose, latch=True, queue_size=20)
+        self.hand_pose_publisher = rospy.Publisher('/hand_pose', PoseStamped, latch=True, queue_size=20)
         self.joint_publisher = rospy.Publisher('/joint_command', Int32, queue_size=10)
         rospy.Subscriber("grasp_width", Float32, self.width_callback)
         self.gripper_publisher = rospy.Publisher('target_gripper_action', GripperAction, queue_size=10)
         self.grip_msg = GripperAction()
         
-    def transform_to_pose(self, transform):
+    def transform_to_pose(self, transform, orientation = 0):
         
         #Convert box orientation to euler form
         #e = self.euler_from_quaternion(transform.transform.rotation.x,transform.transform.rotation.y,transform.transform.rotation.z,transform.transform.rotation.w)
@@ -46,16 +47,40 @@ class Handover:
         pose_msg.position.y = transform.transform.translation.y + 0.005
         pose_msg.position.z = transform.transform.translation.z + 0.09
 
-        """pose_msg.orientation = transform.transform.rotation
-        pose_msg.orientation.x = transform.transform.rotation.x
-        pose_msg.orientation.y = transform.transform.rotation.y
-        pose_msg.orientation.z = transform.transform.rotation.z
-        pose_msg.orientation.w = transform.transform.rotation.w"""
+        if (orientation):
+            pose_msg.orientation = transform.transform.rotation
+            pose_msg.orientation.x = transform.transform.rotation.x
+            pose_msg.orientation.y = transform.transform.rotation.y
+            pose_msg.orientation.z = transform.transform.rotation.z
+            pose_msg.orientation.w = transform.transform.rotation.w
+        else:
+            pose_msg.orientation.x = 1
+            pose_msg.orientation.y = 0
+            pose_msg.orientation.z = 0
+            pose_msg.orientation.w = 0
         
-        pose_msg.orientation.x = 1
-        pose_msg.orientation.y = 0
-        pose_msg.orientation.z = 0
-        pose_msg.orientation.w = 0
+        return pose_msg
+
+    def transform_to_poseStamped(self, transform, orientation = 0):
+        """Convert a transform to a PoseStamped message."""
+        pose_msg = PoseStamped()
+        pose_msg.header = transform.header
+
+        pose_msg.pose.position.x = transform.transform.translation.x
+        pose_msg.pose.position.y = transform.transform.translation.y + 0.005
+        pose_msg.pose.position.z = transform.transform.translation.z + 0.09
+
+        if (orientation):
+            pose_msg.pose.orientation = transform.transform.rotation
+            pose_msg.pose.orientation.x = transform.transform.rotation.x
+            pose_msg.pose.orientation.y = transform.transform.rotation.y
+            pose_msg.pose.orientation.z = transform.transform.rotation.z
+            pose_msg.pose.orientation.w = transform.transform.rotation.w
+        else:
+            pose_msg.pose.orientation.x = 1
+            pose_msg.pose.orientation.y = 0
+            pose_msg.pose.orientation.z = 0
+            pose_msg.pose.orientation.w = 0
         
         return pose_msg
     
@@ -71,10 +96,16 @@ class Handover:
         self.grip_msg.percentage = 0.05
         self.gripper_publisher.publish(self.grip_msg)
         rospy.loginfo("OPENED")
+
+        # Add hand to scene
+        transform = self.tf_buffer.lookup_transform("panda_link0", "hand_centroid", rospy.Time(0), rospy.Duration(20.0))
+        hand_pose_msg = self.transform_to_poseStamped(transform)
+        self.hand_pose_publisher.publish(hand_pose_msg)
+
         
         # go to handover location
-        transform = self.tf_buffer.lookup_transform("panda_link0", "obj_grasp", rospy.Time(), rospy.Duration(5.0))
-        pose_msg = self.transform_to_pose(transform)
+        transform = self.tf_buffer.lookup_transform("panda_link0", "obj_grasp", rospy.Time(0), rospy.Duration(20.0))
+        pose_msg = self.transform_to_pose(transform, 1)
         rospy.loginfo("Found Object Transform of pose:\n" + str(pose_msg))
         self.pose_publisher.publish(pose_msg)
         

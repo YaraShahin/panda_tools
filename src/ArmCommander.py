@@ -58,6 +58,8 @@ class ArmCommander(object):
     ## Instantiate a `RobotCommander`_ object. Provides information such as the robot's
     ## kinematic model and the robot's current joint states
     self.robot = moveit_commander.RobotCommander()
+    self.scene = moveit_commander.PlanningSceneInterface()
+    self.add_table_scene()
     self.setup_planner()
     self.log_robot_info()
     
@@ -68,12 +70,25 @@ class ArmCommander(object):
     # To command the arm to go to a target ee pose, just publish a msg to this topic
     rospy.Subscriber("/target_ee_pose", geometry_msgs.msg.Pose, self.arm_commander_callback)
     rospy.Subscriber("/joint_command", Int32, self.joint_commander_callback)
+    rospy.Subscriber("/hand_pose", geometry_msgs.msg.PoseStamped, self.add_obstacle_callback)
     
     self.old_pose = self.get_current_pose()
     
     self.go_home()
     rospy.sleep(2)
     rospy.loginfo("Arm Commander Ready to recieve pose messages!")
+  
+  def add_table_scene(self):
+    table_pose = PoseStamped()
+    table_pose.header.frame_id = "panda_link0"  # Adjust frame_id according to your TF frame
+    table_pose.pose.position.x = 0.0  # Adjust position according to table location
+    table_pose.pose.position.y = 0.0
+    table_pose.pose.position.z = 0.0  # Adjust height as needed
+    table_pose.pose.orientation.x = 0.0  # Adjust orientation as needed
+    table_pose.pose.orientation.y = 0.0
+    table_pose.pose.orientation.z = 0.0
+    table_pose.pose.orientation.w = 1.0
+    self.scene.add_box("table", table_pose, size=(1.0, 1.0, 0.01)) 
 
   def log_robot_info(self):
     rospy.loginfo("============ Planning frame: %s" % self.planning_frame)
@@ -122,7 +137,7 @@ class ArmCommander(object):
   def arm_commander_callback(self, pose):
     rospy.loginfo("Received target pose message: %s", pose)
 
-    self.go_to_pose_goal(pose, self.debugging)
+    self.go_to_pose_goal(pose)
     
   def joint_commander_callback(self, msg):
     code = msg.data
@@ -133,6 +148,9 @@ class ArmCommander(object):
       self.go_goal()
     else:
       rospy.logerr("I DONT RECOGNIZE THIS CODE")
+
+  def add_obstacle_callback(self, pose):
+    self.scene.add_box("obstacle_hand", pose, size=(0.005, 0.005, 0.005))
     
   def get_current_pose(self):
       current_pose = self.move_group.get_current_pose().pose
@@ -149,12 +167,12 @@ class ArmCommander(object):
     pose_msg.pose=pose
     self.rviz_display_pose_publisher.publish(pose_msg)
 
-  def go_to_pose_goal(self, pose, debugging = False):
+  def go_to_pose_goal(self, pose, debugging = True):
     """
     Panda End Effector go to pose
     debugging mode waits for ur approval on the computed trajectory
     """
-    self.display_pose(pose)
+    #self.display_pose(pose)
     self.move_group.set_pose_target(pose)
     rospy.loginfo("============ Going to specified Target Pose: %s" % pose)
     
@@ -173,8 +191,8 @@ class ArmCommander(object):
       rospy.logerr(f"Exception tant {e}")"""
     
     if trajectory:    # If planning succeeds, Execute the trajectory
-      #if (debugging):
-      #  wait_for_keypress()   #wait for planned trajectory human validation
+      if (debugging):
+        wait_for_keypress()   #wait for planned trajectory human validation
       self.move_group.execute(trajectory)
     else:
       rospy.logerr("Failed to plan trajectory!")
