@@ -1,5 +1,35 @@
 #!/usr/bin/env python
 
+#1. Wire camera to dev machine and robot to panda machine
+#2. connect both machines on my wifi and verify the ips and the ros connection
+#3. Panda Machine: roscore
+#4. Panda Machine: roslaunch panda_tools launch_robot.launch to launch robot with movit and rviz + camera extrensics state publisher
+#panda machine rosrun panda_tools handover.py
+#5. Dev machine: run the shell script to init 
+#6. wait till everything is inited
+#7. press any key to capture, segment, generate grasp pose, manipulate, and publish it.
+
+#- [ ]  Increase effeciency
+#    - [ ]  Segmentation model substitution or remove the need for 2 hands then cb then obj
+#    - [ ]  see if u can decrease the number of generated grasps to decrease time
+#- [ ]  Increase accuracy
+#    - [ ]  Erode the segmentation mask to see if grasp pose generation success rate increases
+#- [ ]  robot 2 human
+#- [ ]  timeout franka enter to validate pose
+#- [ ]  add table to ws
+#- [ ]  octomap
+#- Add tabletop to moveit scene
+#- Add Camera to robot xacro and moveit planner
+##- Robot track wara el object
+#- Robot2Human
+#- Higher-order planning learning el object functionality using google lens
+#- Higher order planning as EgoHOS outputs object detection, mesh profile, and the activity from egocentric pov
+#- Collision Avoidance
+#- TKH_Panda Todos + marker demos
+#- middleware_utils: calibration
+#- Force/Torque: Grasp force modulation
+#- Behavior Trees
+
 import rospy
 import tf
 from geometry_msgs.msg import Pose, PoseStamped
